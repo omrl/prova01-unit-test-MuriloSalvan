@@ -136,4 +136,71 @@ describe("CarrinhoCompras", () => {
     });
   });
 
+  describe("aplicarCupom e removerCupom", () => {
+    test("deve aplicar um cupom válido normalizando o código", () => {
+      expect(carrinho.aplicarCupom(" promo10 ")).toBe("PROMO10");
+      expect(carrinho.cupom).toBe("PROMO10");
+    });
+
+    test("deve lançar erro para cupom inexistente", () => {
+      expect(() => carrinho.aplicarCupom("NAOEXISTE")).toThrow(
+        "Cupom inválido: NAOEXISTE",
+      );
+    });
+
+    test("deve lançar erro para código não textual", () => {
+      expect(() => carrinho.aplicarCupom(123)).toThrow(
+        "O código do cupom é obrigatório",
+      );
+    });
+
+    test("deve remover o cupom devolvendo o código anterior", () => {
+      carrinho.aplicarCupom("BLACK20");
+      expect(carrinho.removerCupom()).toBe("BLACK20");
+      expect(carrinho.cupom).toBeNull();
+    });
+  });
+
+  describe("valorDesconto", () => {
+    beforeEach(() => carrinho.adicionarItem("Monitor", 100, 1));
+
+    test("deve retornar zero sem cupom", () => {
+      expect(carrinho.valorDesconto()).toBe(0);
+    });
+
+    test("deve calcular o desconto do cupom aplicado", () => {
+      carrinho.aplicarCupom("PROMO10");
+      expect(carrinho.valorDesconto()).toBe(10);
+      carrinho.aplicarCupom("METADE");
+      expect(carrinho.valorDesconto()).toBe(50);
+    });
+  });
+
+  describe("calcularFrete", () => {
+    test("deve ser grátis no carrinho vazio", () => {
+      expect(carrinho.calcularFrete()).toBe(0);
+    });
+
+    test("deve cobrar frete abaixo do limite", () => {
+      carrinho.adicionarItem("Mouse", 50, 1);
+      expect(carrinho.calcularFrete()).toBe(15);
+    });
+
+    test("deve ser grátis a partir do limite", () => {
+      carrinho.adicionarItem("Monitor", 200, 1);
+      expect(carrinho.calcularFrete()).toBe(0);
+    });
+
+    test("deve considerar o desconto antes de liberar o frete grátis", () => {
+      carrinho.adicionarItem("Monitor", 210, 1);
+      carrinho.aplicarCupom("PROMO10");
+      expect(carrinho.calcularFrete()).toBe(15);
+    });
+
+    test("deve respeitar o limite informado no construtor", () => {
+      const outro = new CarrinhoCompras(100);
+      outro.adicionarItem("Mouse", 100, 1);
+      expect(outro.calcularFrete()).toBe(0);
+    });
+  });
 });
