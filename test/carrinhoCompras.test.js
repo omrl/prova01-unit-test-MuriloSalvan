@@ -7,7 +7,6 @@ describe("CarrinhoCompras", () => {
     carrinho = new CarrinhoCompras();
   });
 
-  // 1. adicionarItem: inclui o item, soma a quantidade se ele ja existe e valida nome, preco e quantidade
   describe("adicionarItem", () => {
     test("deve adicionar um item novo", () => {
       const item = carrinho.adicionarItem("Teclado", 150, 2);
@@ -52,7 +51,6 @@ describe("CarrinhoCompras", () => {
     });
   });
 
-  // 2. removerItem: retira o item do carrinho e o devolve, ou lanca erro se ele nao existir
   describe("removerItem", () => {
     test("deve remover e devolver o item", () => {
       carrinho.adicionarItem("Mouse", 50);
@@ -68,7 +66,6 @@ describe("CarrinhoCompras", () => {
     });
   });
 
-  // 3. atualizarQuantidade: troca a quantidade do item; quantidade zero remove o item do carrinho
   describe("atualizarQuantidade", () => {
     beforeEach(() => carrinho.adicionarItem("Mouse", 50, 2));
 
@@ -95,7 +92,6 @@ describe("CarrinhoCompras", () => {
     });
   });
 
-  // 4 e 5. buscarItem/contemItem: localizam um item pelo nome (null/false quando nao existe)
   describe("buscarItem e contemItem", () => {
     test("deve encontrar um item existente", () => {
       carrinho.adicionarItem("Mouse", 50);
@@ -108,4 +104,36 @@ describe("CarrinhoCompras", () => {
       expect(carrinho.contemItem("Fone")).toBe(false);
     });
   });
+
+  describe("totalItens e quantidadeDeProdutos", () => {
+    test("deve contar unidades e produtos distintos", () => {
+      carrinho.adicionarItem("Mouse", 50, 2);
+      carrinho.adicionarItem("Teclado", 150, 3);
+      expect(carrinho.totalItens()).toBe(5);
+      expect(carrinho.quantidadeDeProdutos()).toBe(2);
+    });
+
+    test("deve retornar zero no carrinho vazio", () => {
+      expect(carrinho.totalItens()).toBe(0);
+      expect(carrinho.quantidadeDeProdutos()).toBe(0);
+    });
+  });
+
+  describe("subtotal", () => {
+    test("deve somar preço x quantidade", () => {
+      carrinho.adicionarItem("Mouse", 50, 2);
+      carrinho.adicionarItem("Teclado", 150, 1);
+      expect(carrinho.subtotal()).toBe(250);
+    });
+
+    test("deve arredondar para duas casas decimais", () => {
+      carrinho.adicionarItem("Caneta", 0.1, 3);
+      expect(carrinho.subtotal()).toBe(0.3);
+    });
+
+    test("deve retornar zero no carrinho vazio", () => {
+      expect(carrinho.subtotal()).toBe(0);
+    });
+  });
+
 });
