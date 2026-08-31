@@ -203,4 +203,90 @@ describe("CarrinhoCompras", () => {
       expect(outro.calcularFrete()).toBe(0);
     });
   });
+
+  describe("total", () => {
+    test("deve somar subtotal, desconto e frete", () => {
+      carrinho.adicionarItem("Mouse", 50, 2);
+      carrinho.aplicarCupom("PROMO10");
+      expect(carrinho.total()).toBe(105);
+    });
+  });
+
+  describe("listarItens", () => {
+    test("deve devolver cópias que não alteram o estado interno", () => {
+      carrinho.adicionarItem("Mouse", 50, 1);
+      const lista = carrinho.listarItens();
+      lista[0].quantidade = 99;
+      expect(carrinho.buscarItem("Mouse").quantidade).toBe(1);
+    });
+  });
+
+  describe("itemMaisCaro", () => {
+    test("deve retornar o item de maior preço unitário", () => {
+      carrinho.adicionarItem("Mouse", 50, 10);
+      carrinho.adicionarItem("Monitor", 900, 1);
+      carrinho.adicionarItem("Teclado", 150, 1);
+      expect(carrinho.itemMaisCaro().nome).toBe("Monitor");
+    });
+  });
+
+  describe("ordenarPorPreco", () => {
+    beforeEach(() => {
+      carrinho.adicionarItem("Mouse", 50);
+      carrinho.adicionarItem("Monitor", 900);
+      carrinho.adicionarItem("Teclado", 150);
+    });
+
+    test("deve ordenar de forma crescente por padrão", () => {
+      expect(carrinho.ordenarPorPreco().map((i) => i.nome)).toEqual([
+        "Mouse",
+        "Teclado",
+        "Monitor",
+      ]);
+    });
+
+    test("deve ordenar de forma decrescente", () => {
+      expect(carrinho.ordenarPorPreco("desc").map((i) => i.nome)).toEqual([
+        "Monitor",
+        "Teclado",
+        "Mouse",
+      ]);
+    });
+
+    test("deve lançar erro para ordem inválida", () => {
+      expect(() => carrinho.ordenarPorPreco("crescente")).toThrow(
+        'A ordem deve ser "asc" ou "desc"',
+      );
+    });
+  });
+
+  describe("filtrarPorFaixaDePreco", () => {
+    beforeEach(() => {
+      carrinho.adicionarItem("Mouse", 50);
+      carrinho.adicionarItem("Teclado", 150);
+      carrinho.adicionarItem("Monitor", 900);
+    });
+
+    test("deve filtrar incluindo os limites", () => {
+      expect(
+        carrinho.filtrarPorFaixaDePreco(50, 150).map((i) => i.nome),
+      ).toEqual(["Mouse", "Teclado"]);
+    });
+
+    test("deve retornar lista vazia quando nada se encaixa", () => {
+      expect(carrinho.filtrarPorFaixaDePreco(1000, 2000)).toEqual([]);
+    });
+
+    test("deve lançar erro para limites não numéricos", () => {
+      expect(() => carrinho.filtrarPorFaixaDePreco("0", 100)).toThrow(
+        "Os limites da faixa devem ser números",
+      );
+    });
+
+    test("deve lançar erro quando o mínimo é maior que o máximo", () => {
+      expect(() => carrinho.filtrarPorFaixaDePreco(100, 10)).toThrow(
+        "O valor mínimo não pode ser maior que o máximo",
+      );
+    });
+  });
 });
