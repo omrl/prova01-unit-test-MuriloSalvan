@@ -289,4 +289,48 @@ describe("CarrinhoCompras", () => {
       );
     });
   });
+
+  describe("esvaziar e estaVazio", () => {
+    test("deve limpar itens e cupom devolvendo o total removido", () => {
+      carrinho.adicionarItem("Mouse", 50);
+      carrinho.adicionarItem("Teclado", 150);
+      carrinho.aplicarCupom("PROMO10");
+      expect(carrinho.esvaziar()).toBe(2);
+      expect(carrinho.estaVazio()).toBe(true);
+      expect(carrinho.cupom).toBeNull();
+    });
+
+    test("deve começar vazio", () => {
+      expect(carrinho.estaVazio()).toBe(true);
+    });
+  });
+
+  describe("resumo", () => {
+    test("deve consolidar os dados do carrinho", () => {
+      carrinho.adicionarItem("Mouse", 50, 2);
+      carrinho.adicionarItem("Teclado", 150, 1);
+      carrinho.aplicarCupom("BLACK20");
+      expect(carrinho.resumo()).toEqual({
+        produtos: 2,
+        itens: 3,
+        subtotal: 250,
+        cupom: "BLACK20",
+        desconto: 50,
+        frete: 0,
+        total: 200,
+      });
+    });
+
+    test("deve refletir o carrinho vazio", () => {
+      expect(carrinho.resumo()).toEqual({
+        produtos: 0,
+        itens: 0,
+        subtotal: 0,
+        cupom: null,
+        desconto: 0,
+        frete: 0,
+        total: 0,
+      });
+    });
+  });
 });
